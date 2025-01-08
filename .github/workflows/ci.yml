@@ -63,7 +63,7 @@ jobs:
         id: parse_hosts
         run: |
           echo "${{ secrets.SSH_HOSTS }}" | tr ',' '\n' > hosts.txt
-      
+
       - name: Деплой хостов
         run: |
           for host in $(cat hosts.txt); do
@@ -74,5 +74,5 @@ jobs:
               host: ${{ ssh-host }}
               username: ${{ secrets.SSH_USER }}
               password: ${{ secrets.SSH_PASSWORD }}
-              script: expect /home/maxim/django_cicd/pull.exp
+              script: expect /home/adilet/django_cicd/deploy.exp
           done
