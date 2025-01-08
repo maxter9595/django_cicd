@@ -25,4 +25,4 @@ class StockViewSet(ModelViewSet):
 
 class TestView(APIView):
     def get(self, request):
-        return Response({"message": "Hello domain name!!!!"})
+        return Response({"message": "Hello domain name!"})
