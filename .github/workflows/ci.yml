@@ -7,6 +7,7 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-24.04
+
     env:
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       DEBUG: "0"
@@ -17,6 +18,7 @@ jobs:
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       DB_HOST: ${{ secrets.DB_HOST }}
       DB_PORT: ${{ secrets.DB_PORT }}
+      
     services:
       postgres_main:
         image: postgres:12
@@ -31,6 +33,11 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 5
+
+    strategy:
+      matrix:
+        host: ${{ fromJson('[' + secrets.SSH_HOSTS + ']') }}
+    
     steps:
       - name: Проверяем репозиторий на наличие изменений
         uses: actions/checkout@v3
@@ -59,20 +66,10 @@ jobs:
           DB_HOST: ${{ env.DB_HOST }}
           DB_PORT: ${{ env.DB_PORT }}
 
-      - name: Парсинг хостов
-        id: parse_hosts
-        run: |
-          echo "${{ secrets.SSH_HOSTS }}" | tr ',' '\n' > hosts.txt
-
-      - name: Деплой хостов
-        run: |
-          for host in $(cat hosts.txt); do
-            echo "Deploying to $host"
-            ssh-host="$host"
-            uses: appleboy/ssh-action@master
-            with:
-              host: ${{ ssh-host }}
-              username: ${{ secrets.SSH_USER }}
-              password: ${{ secrets.SSH_PASSWORD }}
-              script: expect /home/adilet/django_cicd/deploy.exp
-          done
+      - name: Деплой
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ matrix.host }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: expect /home/adilet/django_cicd/deploy.exp
