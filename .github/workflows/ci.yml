@@ -65,17 +65,21 @@ jobs:
       - name: Преобразуем SSH_HOSTS в массив
         id: matrix
         run: |
-          echo "HOSTS=(${SSH_HOSTS})" >> $GITHUB_ENV  # Записываем SSH_HOSTS как переменную окружения
+          echo "HOSTS=(${SSH_HOSTS})" >> $GITHUB_ENV  # Преобразуем строку в массив
 
       - name: Отладка переменных окружения
         run: |
-          echo "HOSTS=${{ env.HOSTS }}"
+          echo "HOSTS=${{ env.HOSTS }}"  # Проверяем, что хранится в переменной HOSTS
           echo "SSH_USER=${{ secrets.SSH_USER }}"
 
       - name: Деплой на хосты
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ env.HOSTS }}
-          username: ${{ secrets.SSH_USER }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          script: expect /home/maxim/django_cicd/deploy.exp
+        run: |
+          for host in ${{ env.HOSTS }}; do
+            echo "Деплой на $host"
+            uses: appleboy/ssh-action@master
+            with:
+              host: $host  # Используем каждый хост из массива
+              username: ${{ secrets.SSH_USER }}
+              password: ${{ secrets.SSH_PASSWORD }}
+              script: expect /home/maxim/django_cicd/deploy.exp
+          done
