@@ -59,10 +59,20 @@ jobs:
           DB_HOST: ${{ env.DB_HOST }}
           DB_PORT: ${{ env.DB_PORT }}
 
-      - name: Деплой
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          script: expect /home/maxim/django_cicd/pull.exp
+      - name: Парсинг хостов
+        id: parse_hosts
+        run: |
+          echo "${{ secrets.SSH_HOSTS }}" | tr ',' '\n' > hosts.txt
+      
+      - name: Деплой хостов
+        run: |
+          for host in $(cat hosts.txt); do
+            echo "Deploying to $host"
+            ssh-host="$host"
+            uses: appleboy/ssh-action@master
+            with:
+              host: ${{ ssh-host }}
+              username: ${{ secrets.SSH_USER }}
+              password: ${{ secrets.SSH_PASSWORD }}
+              script: expect /home/maxim/django_cicd/pull.exp
+          done
