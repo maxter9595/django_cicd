@@ -67,6 +67,11 @@ jobs:
         run: |
           echo "HOSTS=(${SSH_HOSTS})" >> $GITHUB_ENV  # Записываем SSH_HOSTS как переменную окружения
 
+      - name: Отладка переменных окружения
+        run: |
+          echo "HOSTS=${{ env.HOSTS }}"
+          echo "SSH_USER=${{ secrets.SSH_USER }}"
+
       - name: Деплой на хосты
         uses: appleboy/ssh-action@master
         with:
