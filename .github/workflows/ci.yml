@@ -34,7 +34,7 @@ jobs:
 
     strategy:
       matrix:
-        host: ${{ fromJson('[' + secrets.SSH_HOSTS + ']') }}
+        host: ${{ fromJson(secrets.SSH_HOSTS) }}
 
     steps:
       - name: Проверяем репозиторий на наличие изменений
