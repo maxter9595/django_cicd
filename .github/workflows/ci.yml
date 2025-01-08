@@ -3,6 +3,8 @@ name: Тестирование и развёртывание проекта
 on:
   push:
     branches: [cicd]
+  pull_request:
+    branches: [cicd]
 
 jobs:
   tests:
